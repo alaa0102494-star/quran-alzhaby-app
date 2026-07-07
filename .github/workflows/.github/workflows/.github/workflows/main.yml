@@ -29,7 +29,6 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
 
     - name: Ensure .env file exists
       run: |
@@ -38,19 +37,15 @@ jobs:
           touch .env
         fi
 
-    - name: Generate Gradle Wrapper
-      run: gradle wrapper --gradle-version 8.2
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
 
-    - name: Grant execute permission
-      run: chmod +x gradlew
-
-    - name: Build APK
-      run: ./gradlew assembleDebug
+    - name: Build APK without signing constraints
+      run: gradle assembleDebug -x test -Pandroid.packageBuildConfig=false --no-daemon
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: quran-app-apk
         path: |
-          app/build/outputs/apk/debug/app-debug.apk
-          **/build/outputs/apk/debug/*.apk
+          **/build/outputs/apk/**/*.apk
