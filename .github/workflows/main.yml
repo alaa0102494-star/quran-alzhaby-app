@@ -33,9 +33,14 @@ jobs:
     - name: Ensure .env file exists
       run: |
         if [ ! -f .env ]; then
-          echo "Creating empty .env file"
           touch .env
         fi
+
+    - name: Create Fake Keystore File
+      run: |
+        # توليد ملف المفتاح الوهمي في المجلد الرئيسي وفي مجلد app عشان نضمن إن الأندرويد يشوفه
+        keytool -genkey -v -keystore app-debug.keystore -alias debugConfig -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US"
+        cp app-debug.keystore app/app-debug.keystore || true
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
